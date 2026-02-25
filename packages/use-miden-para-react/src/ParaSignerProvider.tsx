@@ -16,9 +16,19 @@ import {
   type ParaProviderProps,
 } from '@getpara/react-sdk-lite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SignerContext, type SignerContextValue } from '@miden-sdk/react';
-import { signCb as createSignCb, type CustomSignConfirmStep } from '@miden-sdk/miden-para';
-import { evmPkToCommitment, getUncompressedPublicKeyFromWallet } from '@miden-sdk/miden-para';
+import {
+  SignerContext,
+  type SignerContextValue,
+  type SignerAccountConfig,
+} from '@miden-sdk/react';
+import {
+  signCb as createSignCb,
+  type CustomSignConfirmStep,
+} from '@miden-sdk/miden-para';
+import {
+  evmPkToCommitment,
+  getUncompressedPublicKeyFromWallet,
+} from '@miden-sdk/miden-para';
 
 // Re-export Para hooks for convenience
 export { useModal, useLogout } from '@getpara/react-sdk-lite';
@@ -29,7 +39,13 @@ const defaultQueryClient = new QueryClient();
 // ================================================================================================
 
 /** Environment string values accepted by ParaSignerProvider */
-export type ParaEnvironment = 'BETA' | 'PROD' | 'SANDBOX' | 'DEV' | 'DEVELOPMENT' | 'PRODUCTION';
+export type ParaEnvironment =
+  | 'BETA'
+  | 'PROD'
+  | 'SANDBOX'
+  | 'DEV'
+  | 'DEVELOPMENT'
+  | 'PRODUCTION';
 
 /**
  * Convert environment string to Environment enum value.
@@ -37,7 +53,8 @@ export type ParaEnvironment = 'BETA' | 'PROD' | 'SANDBOX' | 'DEV' | 'DEVELOPMENT
  */
 function getEnvironmentValue(env: ParaEnvironment): Environment {
   // Handle aliases
-  const normalizedEnv = env === 'DEVELOPMENT' ? 'BETA' : env === 'PRODUCTION' ? 'PROD' : env;
+  const normalizedEnv =
+    env === 'DEVELOPMENT' ? 'BETA' : env === 'PRODUCTION' ? 'PROD' : env;
 
   // Try accessing the enum - Environment may be undefined in some test environments
   if (Environment && typeof Environment === 'object') {
@@ -70,7 +87,11 @@ export interface ParaSignerProviderProps {
    * Advanced: Additional config to pass to ParaProvider.
    * Use this for customizing OAuth methods, external wallets, etc.
    */
-  paraProviderConfig?: Partial<Omit<ParaProviderProps<any, any>, 'children' | 'paraClientConfig'>>;
+  paraProviderConfig?: Partial<
+    Omit<ParaProviderProps<any, any>, 'children' | 'paraClientConfig'>
+  >;
+  /** Optional custom account components to include in the account (e.g. from a compiled .masp package) */
+  customComponents?: SignerAccountConfig['customComponents'];
 }
 
 /**
@@ -107,6 +128,7 @@ export function ParaSignerProvider({
   customSignConfirmStep,
   queryClient,
   paraProviderConfig,
+  customComponents,
 }: ParaSignerProviderProps) {
   return (
     <QueryClientProvider client={queryClient ?? defaultQueryClient}>
@@ -121,6 +143,7 @@ export function ParaSignerProvider({
         <ParaSignerProviderInner
           showSigningModal={showSigningModal}
           customSignConfirmStep={customSignConfirmStep}
+          customComponents={customComponents}
         >
           {children}
         </ParaSignerProviderInner>
@@ -136,27 +159,41 @@ function ParaSignerProviderInner({
   children,
   showSigningModal = true,
   customSignConfirmStep,
-}: Pick<ParaSignerProviderProps, 'children' | 'showSigningModal' | 'customSignConfirmStep'>) {
+  customComponents,
+}: Pick<
+  ParaSignerProviderProps,
+  'children' | 'showSigningModal' | 'customSignConfirmStep' | 'customComponents'
+>) {
   // Access Para modal from ParaProvider.
   // Store in refs to avoid re-render loops (these hooks return new objects each render).
   const { openModal } = useModal();
   const { logoutAsync } = useLogout();
   const openModalRef = useRef(openModal);
   const logoutAsyncRef = useRef(logoutAsync);
-  useEffect(() => { openModalRef.current = openModal; }, [openModal]);
-  useEffect(() => { logoutAsyncRef.current = logoutAsync; }, [logoutAsync]);
+  useEffect(() => {
+    openModalRef.current = openModal;
+  }, [openModal]);
+  useEffect(() => {
+    logoutAsyncRef.current = logoutAsync;
+  }, [logoutAsync]);
 
   // Get the Para client from ParaProvider context (avoids creating a duplicate instance).
   // Store in a ref so downstream effects don't re-fire when the hook returns a new wrapper.
   const para = useClient()!;
   const paraRef = useRef(para);
-  useEffect(() => { paraRef.current = para; }, [para]);
+  useEffect(() => {
+    paraRef.current = para;
+  }, [para]);
 
   // Keep props in refs so buildContext doesn't re-run when parent re-renders with new closures.
   const showSigningModalRef = useRef(showSigningModal);
   const customSignConfirmStepRef = useRef(customSignConfirmStep);
-  useEffect(() => { showSigningModalRef.current = showSigningModal; }, [showSigningModal]);
-  useEffect(() => { customSignConfirmStepRef.current = customSignConfirmStep; }, [customSignConfirmStep]);
+  useEffect(() => {
+    showSigningModalRef.current = showSigningModal;
+  }, [showSigningModal]);
+  useEffect(() => {
+    customSignConfirmStepRef.current = customSignConfirmStep;
+  }, [customSignConfirmStep]);
 
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -178,7 +215,9 @@ function ParaSignerProviderInner({
         const evmWallets = wallets.filter((w) => w.type === 'EVM');
 
         if (evmWallets.length > 0 && !cancelled) {
-          setWallet((prev) => prev?.id === evmWallets[0].id ? prev : evmWallets[0]);
+          setWallet((prev) =>
+            prev?.id === evmWallets[0].id ? prev : evmWallets[0]
+          );
           setIsConnected(true);
         } else if (!cancelled) {
           setIsConnected(false);
@@ -224,7 +263,9 @@ function ParaSignerProviderInner({
   // A {isConnected:false} context makes MidenProvider's init effect return early
   // without creating any client, keeping the WASM module free for buildContext.
   const disconnectedCtx = useRef<SignerContextValue>({
-    signCb: async () => { throw new Error('Para wallet not connected'); },
+    signCb: async () => {
+      throw new Error('Para wallet not connected');
+    },
     accountConfig: null as any,
     storeName: '',
     name: 'Para',
@@ -263,9 +304,7 @@ function ParaSignerProviderInner({
         );
 
         if (!cancelled) {
-          const { AccountStorageMode } = await import(
-            '@miden-sdk/miden-sdk'
-          );
+          const { AccountStorageMode } = await import('@miden-sdk/miden-sdk');
 
           setSignerContext({
             signCb: signCallback,
@@ -273,6 +312,7 @@ function ParaSignerProviderInner({
               publicKeyCommitment: commitmentBytes,
               accountType: 'RegularAccountImmutableCode',
               storageMode: AccountStorageMode.public(),
+              ...(customComponents?.length ? { customComponents } : {}),
             },
             storeName: `para_${wallet.id}`,
             name: 'Para',

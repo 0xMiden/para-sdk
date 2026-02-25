@@ -565,10 +565,10 @@
     dexie "^4.0.1"
     glob "^11.0.0"
 
-"@miden-sdk/react@^0.13.1":
-  version "0.13.1"
-  resolved "https://registry.yarnpkg.com/@miden-sdk/react/-/react-0.13.1.tgz#c84465d1785afe70da111e8f4763a0e8438d9c24"
-  integrity sha512-xkTJ6P308OwakeILH6DEAklMHLq3FHzZmQCKOTSldeRygm4iogM0HPP+GIVAnBoouGFWD/mslDUTGfE90VIkUQ==
+"@miden-sdk/react@^0.13.3":
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/@miden-sdk/react/-/react-0.13.3.tgz#943f560709053f78d2914912571780e4690609f7"
+  integrity sha512-jJ/j61C/53bsDXi80AllZSygoGd5+GSFRFLSMHLIto3zO9IiQ7JTbmHOtKLp7qTh+VozLyE0wE/pTsWYoVtKQg==
   dependencies:
     zustand "^5.0.0"
 
