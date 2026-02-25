@@ -18,8 +18,8 @@
     "@noble/hashes": "^2.0.1"
   },
   "devDependencies": {
-    "@miden-sdk/miden-sdk": "^0.13.0",
-    "@getpara/web-sdk": "2.0.0-alpha.73",
+    "@getpara/web-sdk": "^2.11.0",
+    "@miden-sdk/miden-sdk": "^0.13.1",
     "@types/react": "^19.0.0",
     "@typescript-eslint/parser": "^8.48.0",
     "esbuild": "^0.24.0",
@@ -32,8 +32,8 @@
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
-    "@miden-sdk/miden-sdk": "^0.13.0",
-    "@getpara/web-sdk": "2.0.0-alpha.73"
+    "@getpara/web-sdk": "^2.11.0",
+    "@miden-sdk/miden-sdk": "^0.13.1"
   },
   "exports": {
     ".": {
