@@ -1,6 +1,6 @@
 {
   "name": "@miden-sdk/create-miden-para-react",
-  "version": "0.13.1",
+  "version": "0.13.3",
   "description": "Create a Vite react-ts app preconfigured with Miden + Para's Vite setup",
   "type": "module",
   "bin": {

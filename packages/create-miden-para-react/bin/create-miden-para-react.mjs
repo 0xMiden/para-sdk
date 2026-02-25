@@ -211,7 +211,7 @@ function ensureMidenParaDependencies(targetRoot) {
   pkg.scripts = pkg.scripts ?? {};
   const midenParaVersion = useLocalDeps
     ? `file:${localMidenParaPath}`
-    : "0.13.1";
+    : "0.13.3";
   const useMidenParaReactVersion = useLocalDeps
     ? `file:${localUseMidenParaReactPath}`
     : "^0.13.0";
@@ -223,7 +223,7 @@ function ensureMidenParaDependencies(targetRoot) {
     "@miden-sdk/miden-sdk": "^0.13.0",
     "@miden-sdk/miden-para": midenParaVersion,
     "@miden-sdk/use-miden-para-react": useMidenParaReactVersion,
-    "@miden-sdk/react": "^0.13.1",
+    "@miden-sdk/react": "^0.13.3",
     "@tanstack/react-query": "^5.0.0",
   });
 

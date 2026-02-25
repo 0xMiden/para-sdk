@@ -12,7 +12,7 @@
     "@getpara/react-sdk-lite": "^2.2.0",
     "@getpara/evm-wallet-connectors": "^2.2.0",
     "@miden-sdk/miden-sdk": "^0.13.0",
-    "@miden-sdk/react": "^0.13.2",
+    "@miden-sdk/react": "^0.13.3",
     "@miden-sdk/miden-para": "file:../..",
     "@miden-sdk/use-miden-para-react": "file:../../packages/use-miden-para-react",
     "@tanstack/react-query": "^5.90.12",
@@ -33,7 +33,7 @@
   },
   "resolutions": {
     "@miden-sdk/miden-sdk": "^0.13.0",
-    "@miden-sdk/react": "^0.13.2"
+    "@miden-sdk/react": "^0.13.3"
   },
   "packageManager": "yarn@1.22.22"
 }
