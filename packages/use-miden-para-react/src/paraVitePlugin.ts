@@ -1,4 +1,5 @@
 import type { Plugin } from "vite";
+import { createRequire } from "node:module";
 
 export interface ParaVitePluginOptions {
   /**
@@ -7,6 +8,13 @@ export interface ParaVitePluginOptions {
    */
   polyfills?: string[];
 }
+
+const STUB_PACKAGES = [
+  "@getpara/solana-wallet-connectors",
+  "@getpara/cosmos-wallet-connectors",
+];
+
+const STUB_PREFIX = "\0para-stub:";
 
 /**
  * Vite plugin that configures Para SDK requirements:
@@ -29,12 +37,12 @@ export interface ParaVitePluginOptions {
 export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
   const polyfills = options?.polyfills ?? ["buffer", "crypto", "stream", "util"];
 
-  // Lazy-import nodePolyfills — require it at plugin creation time so Vite
-  // gets the real plugin instance with all its hooks intact.
+  // Resolve nodePolyfills from the consuming project's node_modules (not
+  // from this package's location) using createRequire with process.cwd().
   let nodePolyfillsPlugins: Plugin[] = [];
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { nodePolyfills } = require("vite-plugin-node-polyfills");
+    const projectRequire = createRequire(`file://${process.cwd()}/`);
+    const { nodePolyfills } = projectRequire("vite-plugin-node-polyfills");
     const result = nodePolyfills({ include: polyfills });
     // nodePolyfills can return a single Plugin or Plugin[]
     nodePolyfillsPlugins = Array.isArray(result) ? result : [result];
@@ -45,30 +53,60 @@ export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
     );
   }
 
+  /**
+   * Esbuild plugin that stubs the connector packages during Vite's dep
+   * pre-bundling so esbuild doesn't leave unresolvable bare imports in
+   * the pre-bundled output.
+   */
+  const stubConnectorsEsbuild = {
+    name: "stub-para-connectors",
+    setup(build: any) {
+      const filter = new RegExp(
+        `^(${STUB_PACKAGES.map((p) => p.replace(/[/]/g, "\\/")).join("|")})$`
+      );
+      build.onResolve({ filter }, (args: any) => ({
+        path: args.path,
+        namespace: "para-stub",
+      }));
+      build.onLoad(
+        { filter: /.*/, namespace: "para-stub" },
+        () => ({ contents: "export default {};", loader: "js" as const })
+      );
+    },
+  };
+
   const paraPlugin: Plugin = {
     name: "@miden-sdk/para-vite-plugin",
     enforce: "pre",
 
-    config() {
+    config(userConfig) {
+      const existingPlugins =
+        userConfig.optimizeDeps?.esbuildOptions?.plugins ?? [];
+
       return {
         resolve: {
-          alias: {
-            // Stub unused Para wallet connectors (Solana/Cosmos) to avoid
-            // pulling in heavy dependencies that aren't needed for Miden.
-            "@getpara/solana-wallet-connectors":
-              "data:text/javascript,export default {};",
-            "@getpara/cosmos-wallet-connectors":
-              "data:text/javascript,export default {};",
-          },
           dedupe: ["@getpara/web-sdk", "@getpara/react-sdk-lite"],
         },
         optimizeDeps: {
-          exclude: [
-            "@getpara/solana-wallet-connectors",
-            "@getpara/cosmos-wallet-connectors",
-          ],
+          esbuildOptions: {
+            plugins: [...existingPlugins, stubConnectorsEsbuild],
+          },
         },
       };
+    },
+
+    // Stub the connector packages at Vite's module resolution level
+    // (handles imports that bypass pre-bundling, e.g. in SSR or dev).
+    resolveId(source) {
+      if (STUB_PACKAGES.includes(source)) {
+        return STUB_PREFIX + source;
+      }
+    },
+
+    load(id) {
+      if (id.startsWith(STUB_PREFIX)) {
+        return "export default {};";
+      }
     },
   };
 
