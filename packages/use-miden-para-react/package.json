@@ -1,6 +1,6 @@
 {
   "name": "@miden-sdk/use-miden-para-react",
-  "version": "0.13.3",
+  "version": "0.13.4",
   "description": "React hook that wires Para accounts into a Miden client",
   "license": "MIT",
   "author": "Miden Labs",
@@ -21,6 +21,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./vite": {
+      "types": "./dist/paraVitePlugin.d.ts",
+      "import": "./dist/paraVitePlugin.mjs",
+      "require": "./dist/paraVitePlugin.cjs"
     }
   },
   "files": [
@@ -29,7 +34,9 @@
     "README.md",
     "package.json"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "prepack": "npm run build",
@@ -42,7 +49,13 @@
     "@miden-sdk/miden-sdk": "^0.13.1",
     "@miden-sdk/react": "^0.13.3",
     "@tanstack/react-query": "^5.0.0",
-    "react": "^18.0.0 || ^19.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "vite-plugin-node-polyfills": "^0.22.0"
+  },
+  "peerDependenciesMeta": {
+    "vite-plugin-node-polyfills": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@getpara/react-sdk-lite": "^2.11.0",
@@ -50,9 +63,11 @@
     "@miden-sdk/miden-sdk": "^0.13.1",
     "@miden-sdk/react": "^0.13.3",
     "@tanstack/react-query": "^5.90.12",
+    "@types/node": "^25.3.5",
     "@types/react": "^19.2.5",
     "tsup": "^8.3.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   },
   "engines": {
     "node": ">=18"

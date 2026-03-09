@@ -55,9 +55,18 @@ const createMocks = (state = {}) => {
     '@getpara/react-sdk-lite': {
       ParaProvider: MockParaProvider,
       useClient: () => mockPara,
+      useAccount: () => ({
+        isConnected: state.isLoggedIn,
+        embedded: {
+          wallets: state.wallets || [],
+        },
+      }),
       useModal: () => ({
         openModal: () => {
           state.openModalCalls = (state.openModalCalls || 0) + 1;
+        },
+        closeModal: () => {
+          state.closeModalCalls = (state.closeModalCalls || 0) + 1;
         },
       }),
       useLogout: () => ({
