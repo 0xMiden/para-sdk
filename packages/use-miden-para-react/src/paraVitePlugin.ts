@@ -79,20 +79,29 @@ export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
     name: "@miden-sdk/para-vite-plugin",
     enforce: "pre",
 
-    config(userConfig) {
-      const existingPlugins =
-        userConfig.optimizeDeps?.esbuildOptions?.plugins ?? [];
-
+    config() {
       return {
         resolve: {
           dedupe: ["@getpara/web-sdk", "@getpara/react-sdk-lite"],
         },
-        optimizeDeps: {
-          esbuildOptions: {
-            plugins: [...existingPlugins, stubConnectorsEsbuild],
-          },
-        },
       };
+    },
+
+    // Inject esbuild stub plugin after all config() hooks have run,
+    // so other plugins (e.g. vite-plugin-node-polyfills) can't overwrite it.
+    configResolved(config) {
+      if (!config.optimizeDeps.esbuildOptions) {
+        config.optimizeDeps.esbuildOptions = {};
+      }
+      if (!config.optimizeDeps.esbuildOptions.plugins) {
+        config.optimizeDeps.esbuildOptions.plugins = [];
+      }
+      const hasPlugin = config.optimizeDeps.esbuildOptions.plugins.some(
+        (p: any) => p.name === "stub-para-connectors"
+      );
+      if (!hasPlugin) {
+        config.optimizeDeps.esbuildOptions.plugins.push(stubConnectorsEsbuild);
+      }
     },
 
     // Stub the connector packages at Vite's module resolution level
