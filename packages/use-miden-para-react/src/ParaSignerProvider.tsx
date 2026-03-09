@@ -12,6 +12,7 @@ import { ParaWeb, Environment, type Wallet } from '@getpara/web-sdk';
 import {
   ParaProvider,
   useClient,
+  useAccount as useParaAccount,
   useModal,
   useLogout,
   type ParaProviderProps,
@@ -167,13 +168,17 @@ function ParaSignerProviderInner({
 >) {
   // Access Para modal from ParaProvider.
   // Store in refs to avoid re-render loops (these hooks return new objects each render).
-  const { openModal } = useModal();
+  const { openModal, closeModal } = useModal();
   const { logoutAsync } = useLogout();
   const openModalRef = useRef(openModal);
+  const closeModalRef = useRef(closeModal);
   const logoutAsyncRef = useRef(logoutAsync);
   useEffect(() => {
     openModalRef.current = openModal;
   }, [openModal]);
+  useEffect(() => {
+    closeModalRef.current = closeModal;
+  }, [closeModal]);
   useEffect(() => {
     logoutAsyncRef.current = logoutAsync;
   }, [logoutAsync]);
@@ -196,49 +201,19 @@ function ParaSignerProviderInner({
     customSignConfirmStepRef.current = customSignConfirmStep;
   }, [customSignConfirmStep]);
 
-  const [wallet, setWallet] = useState<Wallet | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  // Use Para SDK's reactive useAccount() hook to detect login state.
+  // This subscribes to the internal state machine instead of polling isFullyLoggedIn().
+  const { isConnected: paraIsConnected, embedded } = useParaAccount();
+  const evmWallets = embedded?.wallets?.filter((w) => w.type === 'EVM') ?? [];
+  const wallet = evmWallets.length > 0 ? (evmWallets[0] as unknown as Wallet) : null;
+  const isConnected = paraIsConnected && wallet !== null;
 
-  // Check connection status on mount and periodically
+  // Close the modal when login is detected
   useEffect(() => {
-    let cancelled = false;
-
-    async function checkConnection() {
-      try {
-        const isLoggedIn = await paraRef.current.isFullyLoggedIn();
-        if (!isLoggedIn || cancelled) {
-          setIsConnected(false);
-          setWallet(null);
-          return;
-        }
-
-        const wallets = Object.values(await paraRef.current.getWallets());
-        const evmWallets = wallets.filter((w) => w.type === 'EVM');
-
-        if (evmWallets.length > 0 && !cancelled) {
-          setWallet((prev) =>
-            prev?.id === evmWallets[0].id ? prev : evmWallets[0]
-          );
-          setIsConnected(true);
-        } else if (!cancelled) {
-          setIsConnected(false);
-          setWallet(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setIsConnected(false);
-          setWallet(null);
-        }
-      }
+    if (isConnected) {
+      closeModalRef.current();
     }
-
-    checkConnection();
-    const interval = setInterval(checkConnection, 2000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
+  }, [isConnected]);
 
   // Connect opens the Para modal
   const connect = useCallback(async () => {
@@ -249,8 +224,6 @@ function ParaSignerProviderInner({
   const disconnect = useCallback(async () => {
     await logoutAsyncRef.current();
     await paraRef.current.logout();
-    setIsConnected(false);
-    setWallet(null);
   }, []);
 
   // Build signer context (includes connect/disconnect for unified useSigner hook).
