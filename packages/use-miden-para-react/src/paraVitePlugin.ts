@@ -62,7 +62,7 @@ export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
     name: "stub-para-connectors",
     setup(build: any) {
       const filter = new RegExp(
-        `^(${STUB_PACKAGES.map((p) => p.replace(/[/]/g, "\\/")).join("|")})$`
+        `^(${STUB_PACKAGES.map((p) => p.replace(/[\\^$.*+?()[\]{}|/]/g, "\\$&")).join("|")})$`
       );
       build.onResolve({ filter }, (args: any) => ({
         path: args.path,
