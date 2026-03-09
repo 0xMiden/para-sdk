@@ -29,7 +29,7 @@
     "README.md",
     "package.json"
   ],
-  "sideEffects": false,
+  "sideEffects": ["*.css"],
   "scripts": {
     "build": "tsup",
     "prepack": "npm run build",

@@ -1,3 +1,4 @@
+import '@getpara/react-sdk-lite/styles.css';
 import {
   useState,
   useEffect,
