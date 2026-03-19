@@ -110,7 +110,7 @@ async function createAccount(
   // check if account exists locally after the import attempt
   const existing = await client.accounts.get(account.id());
   if (!existing) {
-    await client.accounts.insert(account);
+    await client.accounts.insert({ account });
   }
   await client.sync();
   return account.id().toString();
