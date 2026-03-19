@@ -1,5 +1,7 @@
+import type { MidenClient } from '@miden-sdk/miden-sdk';
+
 export async function send(
-  client: import('@miden-sdk/miden-sdk').MidenClient,
+  client: MidenClient,
   fromAccountId: string,
   toAddress: string,
   faucetId: string,

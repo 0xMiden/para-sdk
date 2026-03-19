@@ -1,3 +1,5 @@
+import type { AccountType } from '@miden-sdk/miden-sdk';
+
 export interface MidenClientOpts {
   endpoint?: string;
   noteTransportUrl?: string;
@@ -12,7 +14,7 @@ export type MidenAccountStorageMode = 'public' | 'private' | 'network';
 
 export interface MidenAccountOpts {
   accountSeed?: string;
-  type: import('@miden-sdk/miden-sdk').AccountType;
+  type: AccountType;
   storageMode: MidenAccountStorageMode;
 }
 export type Opts = MidenClientOpts & MidenAccountOpts;

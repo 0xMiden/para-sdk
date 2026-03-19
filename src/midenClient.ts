@@ -13,6 +13,7 @@ import {
   txSummaryToJosn,
 } from './utils.js';
 import type { MidenAccountOpts, Opts, TxSummaryJson } from './types.js';
+import type { MidenClient } from '@miden-sdk/miden-sdk';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
 import { accountSelectionModal, signingModal } from './modalClient.js';
 
@@ -63,7 +64,7 @@ export const signCb = (
  * Attempts to import an existing account for public/network modes before creating a new one.
  */
 async function createAccount(
-  client: import('@miden-sdk/miden-sdk').MidenClient,
+  client: MidenClient,
   publicKey: string,
   opts: MidenAccountOpts
 ) {

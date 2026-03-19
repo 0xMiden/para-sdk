@@ -1,6 +1,7 @@
 'use client';
 
 import { useClient, useAccount, type Wallet } from '@getpara/react-sdk-lite';
+import type { MidenClient } from '@miden-sdk/miden-sdk';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createParaMidenClient,
@@ -32,9 +33,7 @@ export function useParaMiden(
 ) {
   const para = useClient();
   const { isConnected, embedded } = useAccount();
-  const clientRef = useRef<import('@miden-sdk/miden-sdk').MidenClient | null>(
-    null
-  );
+  const clientRef = useRef<MidenClient | null>(null);
   const [accountId, setAccountId] = useState<string>('');
 
   const evmWallets = useMemo(

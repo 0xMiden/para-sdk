@@ -1,8 +1,9 @@
 import type React from 'react';
+import type { MidenClient } from '@miden-sdk/miden-sdk';
 import { type MintAndConsumeProgress, MintAndConsumeStage } from './types';
 
 export async function createFaucetMintAndConsume(
-  client: import('@miden-sdk/miden-sdk').MidenClient,
+  client: MidenClient,
   accountId: string,
   setProgress: React.Dispatch<
     React.SetStateAction<MintAndConsumeProgress | null>
