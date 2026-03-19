@@ -1,6 +1,6 @@
 {
   "name": "@miden-sdk/miden-para",
-  "version": "0.13.4",
+  "version": "0.14.0",
   "description": "Miden x Para Integration",
   "packageManager": "yarn@1.22.22",
   "license": "MIT",
@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@getpara/web-sdk": "^2.11.0",
-    "@miden-sdk/miden-sdk": "^0.13.1",
+    "@miden-sdk/miden-sdk": "^0.14.0",
     "@types/react": "^19.0.0",
     "@typescript-eslint/parser": "^8.48.0",
     "esbuild": "^0.24.0",
@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@getpara/web-sdk": "^2.11.0",
-    "@miden-sdk/miden-sdk": "^0.13.1"
+    "@miden-sdk/miden-sdk": "^0.14.0"
   },
   "exports": {
     ".": {

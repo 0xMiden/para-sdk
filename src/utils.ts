@@ -136,8 +136,6 @@ function noteTypeToString(noteType: import('@miden-sdk/miden-sdk').NoteType) {
       return 'public';
     case 2:
       return 'private';
-    case 3:
-      return 'encrypted';
     default:
       return 'UNKNOWN';
   }

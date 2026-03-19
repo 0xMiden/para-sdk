@@ -63,14 +63,14 @@ export const signCb = (
  * Attempts to import an existing account for public/network modes before creating a new one.
  */
 async function createAccount(
-  midenClient: import('@miden-sdk/miden-sdk').WebClient,
+  client: import('@miden-sdk/miden-sdk').MidenClient,
   publicKey: string,
   opts: MidenAccountOpts
 ) {
   const { AccountBuilder, AccountComponent, AccountStorageMode } =
     await import('@miden-sdk/miden-sdk');
 
-  await midenClient.syncState();
+  await client.sync();
   let pkc = await evmPkToCommitment(publicKey);
   // create a new account
   const accountBuilder = new AccountBuilder(
@@ -100,24 +100,24 @@ async function createAccount(
   // recreating a “new” account with zero commitment, which causes submission to fail.
   if (opts.storageMode !== 'private') {
     try {
-      await midenClient.importAccountById(account.id());
+      await client.accounts.import(account);
     } catch {
       // Import will fail for non-existent accounts; fall through to creation path.
     }
   }
 
   // check if account exists locally after the import attempt
-  const existing = await midenClient.getAccount(account.id());
+  const existing = await client.accounts.get(account.id());
   if (!existing) {
-    await midenClient.newAccount(account, false);
+    await client.accounts.insert(account);
   }
-  await midenClient.syncState();
+  await client.sync();
   return account.id().toString();
 }
 
 /**
- * Builds a Miden WebClient wired to Para wallets and ensures an account exists for the user.
- * Filters to EVM wallets, prompts for selection, creates the external keystore client, and
+ * Builds a MidenClient wired to Para wallets and ensures an account exists for the user.
+ * Filters to EVM wallets, prompts for selection, creates the client, and
  * hydrates or creates the corresponding Miden account before returning the client + account id.
  */
 export async function createParaMidenClient(
@@ -140,27 +140,33 @@ export async function createParaMidenClient(
   const wallet = evmWallets[selectedIndex] ?? evmWallets[0];
   const publicKey = accountKeys[selectedIndex] ?? accountKeys[0];
 
-  const { WebClient } = await import('@miden-sdk/miden-sdk');
+  const { MidenClient } = await import('@miden-sdk/miden-sdk');
   if (opts.storageMode === 'private' && !opts.accountSeed) {
     throw new Error('accountSeed is required when using private storage mode');
   }
+  const signCallback = signCb(para, wallet, showSigningModal, customSignConfirmStep);
   const noteTransportUrl =
     opts.noteTransportUrl ||
     opts.nodeTransportUrl ||
     'https://transport.miden.io';
-  const client = await WebClient.createClientWithExternalKeystore(
-    opts.endpoint,
+
+  const client = await MidenClient.create({
+    rpcUrl: opts.endpoint,
     noteTransportUrl,
-    accountSeedFromStr(opts.seed),
-    undefined,
-    undefined,
-    undefined,
-    signCb(para, wallet, showSigningModal, customSignConfirmStep)
-  );
+    seed: accountSeedFromStr(opts.seed),
+    keystore: {
+      getKey: async () => undefined,
+      insertKey: async () => {},
+      sign: signCallback,
+    },
+    autoSync: true,
+  });
+
   const accountId = await createAccount(
     client,
     publicKey,
     opts as MidenAccountOpts
   );
+
   return { client, accountId };
 }
