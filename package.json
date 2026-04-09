@@ -60,7 +60,8 @@
     "old-build": "yarn build:cjs && yarn build:esm && yarn build:types",
     "prepack": "npm run build && node -e \"require('fs').mkdirSync('build', { recursive: true });\"",
     "postpack": "node ./scripts/postpack.mjs",
-    "publish": "npm publish --access public"
+    "publish": "node ./scripts/publish.js",
+    "publish:dry": "node ./scripts/publish.js --dry-run"
   },
   "sideEffects": false,
   "types": "dist/types/index.d.ts",
