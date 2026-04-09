@@ -176,6 +176,11 @@ function ensurePolyfillDependency(targetRoot) {
   pkg.devDependencies["vite-plugin-node-polyfills"] ??= "^0.24.0";
   pkg.devDependencies["vite-plugin-wasm"] ??= "^3.5.0";
   pkg.devDependencies["vite-plugin-top-level-await"] ??= "^1.6.0";
+  // vite-plugin-top-level-await does `require("rollup")` / `require("esbuild")`
+  // but doesn't declare them as dependencies. Vite 8 switched to rolldown and
+  // no longer installs either transitively, so pin them explicitly.
+  pkg.devDependencies["rollup"] ??= "^4.0.0";
+  pkg.devDependencies["esbuild"] ??= "^0.27.0";
   writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
   logStep("Added Vite plugin deps (polyfills/wasm/top-level-await)");
 }
@@ -232,6 +237,10 @@ function ensureMidenParaDependencies(targetRoot) {
     "vite-plugin-node-polyfills": "^0.24.0",
     "vite-plugin-wasm": "^3.5.0",
     "vite-plugin-top-level-await": "^1.6.0",
+    // See ensurePolyfillDependency() — vite 8 dropped rollup/esbuild, so the
+    // top-level-await plugin's implicit requires need explicit pins.
+    rollup: "^4.0.0",
+    esbuild: "^0.27.0",
   });
 
 
