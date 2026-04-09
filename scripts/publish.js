@@ -74,10 +74,6 @@ function hasScript(directory, scriptName) {
   return Boolean(getPackageInfo(directory).scripts[scriptName]);
 }
 
-function hasYarnLock(directory) {
-  return fs.existsSync(path.resolve(directory, 'yarn.lock'));
-}
-
 /**
  * Strip script entries that would re-invoke this orchestrator as an npm
  * lifecycle hook. npm runs the `publish` script in package.json as a lifecycle
@@ -162,12 +158,12 @@ async function getOtp() {
 }
 
 async function prepareAndBuild(dir) {
-  // Validate lockfile matches package.json, then install. Skip when the
-  // package ships no yarn.lock (e.g. create-miden-para-react has no deps).
-  if (hasYarnLock(dir)) {
-    await runCommand(dir, 'yarn install --frozen-lockfile');
-  } else {
-    console.log(`No yarn.lock in ${dir}, skipping install`);
+  // Under yarn 4 workspaces the lockfile lives at the repo root and a single
+  // `yarn install --immutable` at root installs dependencies for every
+  // workspace, so we only run install when processing the root. Subsequent
+  // per-package iterations just need to run their build script.
+  if (path.resolve(dir) === repoRoot) {
+    await runCommand(dir, 'yarn install --immutable');
   }
 
   if (hasScript(dir, 'build')) {

@@ -2,7 +2,10 @@
   "name": "@miden-sdk/miden-para",
   "version": "0.14.0",
   "description": "Miden x Para Integration",
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "yarn@4.9.3",
+  "workspaces": [
+    "packages/*"
+  ],
   "license": "MIT",
   "author": "Miden Labs",
   "repository": {

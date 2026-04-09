@@ -3,3 +3,12 @@ build
 node_modules
 .DS_Store
 package-lock.json
+
+# yarn 4 — keep releases binary, ignore everything else yarn writes
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
