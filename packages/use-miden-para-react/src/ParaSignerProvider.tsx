@@ -6,6 +6,7 @@ import {
   useRef,
   createContext,
   useContext,
+  type Context,
   type ReactNode,
 } from 'react';
 import { ParaWeb, Environment, type Wallet } from '@getpara/web-sdk';
@@ -19,10 +20,19 @@ import {
 } from '@getpara/react-sdk-lite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  SignerContext,
+  SignerContext as SignerContextUnsafe,
   type SignerContextValue,
   type SignerAccountConfig,
 } from '@miden-sdk/react';
+
+// Re-cast SignerContext to the host app's React typings. @miden-sdk/react may
+// ship with a different @types/react version than the consumer (common with
+// yarn link setups where the linked package has its own node_modules), which
+// causes structural Context<...> / ReactNode mismatches even though the
+// runtime value is identical. The cast is safe — it's the same React context
+// object at runtime.
+const SignerContext =
+  SignerContextUnsafe as unknown as Context<SignerContextValue | null>;
 import {
   signCb as createSignCb,
   type CustomSignConfirmStep,
