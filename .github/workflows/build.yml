@@ -19,14 +19,14 @@ jobs:
         with:
           node-version: 20
           cache: yarn
+      - name: Enable corepack
+        run: corepack enable
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Install use-miden-para-react deps
-        run: yarn install --cwd packages/use-miden-para-react --frozen-lockfile
+        run: yarn install --immutable
       - name: Run tests
         run: npm test
       - name: Build use-miden-para-react
-        run: yarn --cwd packages/use-miden-para-react build
+        run: yarn workspace @miden-sdk/use-miden-para-react build
       - name: Prepare build directory
         run: mkdir -p build
       - name: Run build
