@@ -6,10 +6,22 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 
 // Optional connector families that are never imported by the starter template.
 // Alias them to an empty module so Vite doesn't try to resolve their deps.
+// @getpara/aa-* packages are lazy `import()`ed by @getpara/react-core but the
+// rolldown bundler in Vite 8 still fails if they can't be resolved at build time.
 const optionalPackages = [
   '@getpara/solana-wallet-connectors',
   '@getpara/cosmos-wallet-connectors',
   '@getpara/wagmi-v2-connector',
+  '@getpara/aa-alchemy',
+  '@getpara/aa-biconomy',
+  '@getpara/aa-cdp',
+  '@getpara/aa-gelato',
+  '@getpara/aa-pimlico',
+  '@getpara/aa-porto',
+  '@getpara/aa-rhinestone',
+  '@getpara/aa-safe',
+  '@getpara/aa-thirdweb',
+  '@getpara/aa-zerodev',
   'wagmi',
   '@wagmi/core',
   '@wagmi/connectors',
