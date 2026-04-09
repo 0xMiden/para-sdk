@@ -18,15 +18,15 @@ jobs:
         with:
           node-version: 20
           cache: yarn
+      - name: Enable corepack
+        run: corepack enable
       - name: Install system deps for Puppeteer
         run: |
           sudo apt-get update
           sudo apt-get install -y libnss3 libatk-bridge2.0-0 libgtk-3-0 libxss1
           sudo apt-get install -y libasound2 || sudo apt-get install -y libasound2t64
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Install use-miden-para-react deps
-        run: yarn install --cwd packages/use-miden-para-react --frozen-lockfile
+        run: yarn install --immutable
       - name: Run tests
         run: npm test
       - name: Run create template e2e
