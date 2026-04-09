@@ -176,6 +176,11 @@ function ensurePolyfillDependency(targetRoot) {
   pkg.devDependencies["vite-plugin-node-polyfills"] ??= "^0.24.0";
   pkg.devDependencies["vite-plugin-wasm"] ??= "^3.5.0";
   pkg.devDependencies["vite-plugin-top-level-await"] ??= "^1.6.0";
+  // vite-plugin-top-level-await does `require("rollup")` / `require("esbuild")`
+  // but doesn't declare them as dependencies. Vite 8 switched to rolldown and
+  // no longer installs either transitively, so pin them explicitly.
+  pkg.devDependencies["rollup"] ??= "^4.0.0";
+  pkg.devDependencies["esbuild"] ??= "^0.27.0";
   writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
   logStep("Added Vite plugin deps (polyfills/wasm/top-level-await)");
 }
@@ -211,19 +216,19 @@ function ensureMidenParaDependencies(targetRoot) {
   pkg.scripts = pkg.scripts ?? {};
   const midenParaVersion = useLocalDeps
     ? `file:${localMidenParaPath}`
-    : "0.13.3";
+    : "0.14.0";
   const useMidenParaReactVersion = useLocalDeps
     ? `file:${localUseMidenParaReactPath}`
-    : "^0.13.0";
+    : "^0.14.0";
   // Align with examples/react-signer so Para SDK connector peers are satisfied
   Object.assign(pkg.dependencies, {
     ...pkg.dependencies,
     "@getpara/react-sdk-lite": "^2.2.0",
     "@getpara/evm-wallet-connectors": "^2.2.0",
-    "@miden-sdk/miden-sdk": "^0.13.0",
+    "@miden-sdk/miden-sdk": "^0.14.0",
     "@miden-sdk/miden-para": midenParaVersion,
     "@miden-sdk/use-miden-para-react": useMidenParaReactVersion,
-    "@miden-sdk/react": "^0.13.3",
+    "@miden-sdk/react": "^0.14.0",
     "@tanstack/react-query": "^5.0.0",
   });
 
@@ -232,6 +237,10 @@ function ensureMidenParaDependencies(targetRoot) {
     "vite-plugin-node-polyfills": "^0.24.0",
     "vite-plugin-wasm": "^3.5.0",
     "vite-plugin-top-level-await": "^1.6.0",
+    // See ensurePolyfillDependency() — vite 8 dropped rollup/esbuild, so the
+    // top-level-await plugin's implicit requires need explicit pins.
+    rollup: "^4.0.0",
+    esbuild: "^0.27.0",
   });
 
 

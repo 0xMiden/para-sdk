@@ -1,6 +1,7 @@
 'use client';
 
 import { useClient, useAccount, type Wallet } from '@getpara/react-sdk-lite';
+import type { MidenClient } from '@miden-sdk/miden-sdk';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createParaMidenClient,
@@ -10,11 +11,11 @@ import {
 } from '@miden-sdk/miden-para';
 
 /**
- * React hook that converts Para React SDK context into a ready-to-use Miden WebClient.
+ * React hook that converts Para React SDK context into a ready-to-use MidenClient.
  * Spawns the client once a Para session with at least one EVM wallet is active.
  *
  * Returns:
- * - client: WebClient instance backed by the active Para session (or null while loading)
+ * - client: MidenClient instance backed by the active Para session (or null while loading)
  * - accountId: Miden account id derived for the selected EVM wallet
  * - para: Para client instance from context
  * - evmWallets: filtered list of Para wallets with type === 'EVM'
@@ -32,9 +33,7 @@ export function useParaMiden(
 ) {
   const para = useClient();
   const { isConnected, embedded } = useAccount();
-  const clientRef = useRef<import('@miden-sdk/miden-sdk').WebClient | null>(
-    null
-  );
+  const clientRef = useRef<MidenClient | null>(null);
   const [accountId, setAccountId] = useState<string>('');
 
   const evmWallets = useMemo(

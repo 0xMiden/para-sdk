@@ -1,4 +1,5 @@
 import ParaWeb, { Wallet } from '@getpara/web-sdk';
+import type { NoteType, TransactionSummary } from '@miden-sdk/miden-sdk';
 import { hexToBytes, utf8ToBytes } from '@noble/hashes/utils.js';
 import { TxSummaryJson } from './types';
 export { hexToBytes };
@@ -87,7 +88,7 @@ export const getUncompressedPublicKeyFromWallet = async (
 };
 
 export const txSummaryToJosn = (
-  txSummary: import('@miden-sdk/miden-sdk').TransactionSummary
+  txSummary: TransactionSummary
 ): TxSummaryJson => {
   const inputNotes = txSummary
     .inputNotes()
@@ -130,14 +131,12 @@ export const txSummaryToJosn = (
   };
 };
 
-function noteTypeToString(noteType: import('@miden-sdk/miden-sdk').NoteType) {
+function noteTypeToString(noteType: NoteType) {
   switch (noteType) {
     case 1:
       return 'public';
     case 2:
       return 'private';
-    case 3:
-      return 'encrypted';
     default:
       return 'UNKNOWN';
   }

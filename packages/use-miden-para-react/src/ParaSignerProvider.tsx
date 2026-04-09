@@ -94,6 +94,8 @@ export interface ParaSignerProviderProps {
   >;
   /** Optional custom account components to include in the account (e.g. from a compiled .masp package) */
   customComponents?: SignerAccountConfig['customComponents'];
+  /** Optional account ID to import instead of creating a new account */
+  importAccountId?: string;
 }
 
 /**
@@ -131,6 +133,7 @@ export function ParaSignerProvider({
   queryClient,
   paraProviderConfig,
   customComponents,
+  importAccountId,
 }: ParaSignerProviderProps) {
   return (
     <QueryClientProvider client={queryClient ?? defaultQueryClient}>
@@ -146,6 +149,7 @@ export function ParaSignerProvider({
           showSigningModal={showSigningModal}
           customSignConfirmStep={customSignConfirmStep}
           customComponents={customComponents}
+          importAccountId={importAccountId}
         >
           {children}
         </ParaSignerProviderInner>
@@ -162,9 +166,10 @@ function ParaSignerProviderInner({
   showSigningModal = true,
   customSignConfirmStep,
   customComponents,
+  importAccountId,
 }: Pick<
   ParaSignerProviderProps,
-  'children' | 'showSigningModal' | 'customSignConfirmStep' | 'customComponents'
+  'children' | 'showSigningModal' | 'customSignConfirmStep' | 'customComponents' | 'importAccountId'
 >) {
   // Access Para modal from ParaProvider.
   // Store in refs to avoid re-render loops (these hooks return new objects each render).
@@ -287,6 +292,7 @@ function ParaSignerProviderInner({
               accountType: 'RegularAccountImmutableCode',
               storageMode: AccountStorageMode.public(),
               ...(customComponents?.length ? { customComponents } : {}),
+              ...(importAccountId ? { importAccountId } : {}),
             },
             storeName: `para_${wallet.id}`,
             name: 'Para',
