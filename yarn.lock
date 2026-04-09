@@ -565,10 +565,10 @@
     wrap-ansi "^8.1.0"
     wrap-ansi-cjs "npm:wrap-ansi@^7.0.0"
 
-"@miden-sdk/miden-sdk@^0.13.1":
-  version "0.13.1"
-  resolved "https://registry.yarnpkg.com/@miden-sdk/miden-sdk/-/miden-sdk-0.13.1.tgz#d7cd6b65b342a046bfbe17ebd25c0926561f567d"
-  integrity sha512-GmlBBh3UhPQ6cNnU9l+CN6XrmlrRW6u2IDK5nZYhLc8wnbUgETj2UVbbWGKD51L5R4VXJeYk1fk4UMqTlpvf4w==
+"@miden-sdk/miden-sdk@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@miden-sdk/miden-sdk/-/miden-sdk-0.14.0.tgz#b76b93e71953b86fe42a31a428c26c42655a1c39"
+  integrity sha512-2aUADXrjbjUE8/JE341urq7CuxFqKIOZD5pZCSkvr8o4simsuWBJ6Wy7p4danncst/y+h7rzvTpbhFkQkb6YCA==
   dependencies:
     "@rollup/plugin-typescript" "^12.3.0"
     dexie "^4.0.1"
