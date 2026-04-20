@@ -1086,7 +1086,7 @@ __metadata:
   resolution: "@miden-sdk/miden-para@workspace:."
   dependencies:
     "@getpara/web-sdk": "npm:^2.11.0"
-    "@miden-sdk/miden-sdk": "npm:^0.14.0"
+    "@miden-sdk/miden-sdk": "npm:^0.14.4"
     "@noble/hashes": "npm:^2.0.1"
     "@types/react": "npm:^19.0.0"
     "@typescript-eslint/parser": "npm:^8.48.0"
@@ -1100,30 +1100,30 @@ __metadata:
     typescript: "npm:^5.8.3"
   peerDependencies:
     "@getpara/web-sdk": ^2.11.0
-    "@miden-sdk/miden-sdk": ^0.14.0
+    "@miden-sdk/miden-sdk": ^0.14.4
   languageName: unknown
   linkType: soft
 
-"@miden-sdk/miden-sdk@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@miden-sdk/miden-sdk@npm:0.14.0"
+"@miden-sdk/miden-sdk@npm:^0.14.4":
+  version: 0.14.4
+  resolution: "@miden-sdk/miden-sdk@npm:0.14.4"
   dependencies:
     "@rollup/plugin-typescript": "npm:^12.3.0"
     dexie: "npm:^4.0.1"
     glob: "npm:^11.0.0"
-  checksum: 10c0/0232f6d1c59b41f26b39737f460dea5dfe99ee9e8772dcce8dee961fc4fcdc9ffd7f529cd351f3f9667fc3a976b9d8ef7f80faef3d756edf0fc92a7d35ebd57c
+  checksum: 10c0/0eb292b680665a1019cec8531518a96c9e5389acd6b99a18487e2a8167374ca9c858da36bf49d9222e6bfa0b6c35dc38414daa9ddb7ee59e1b27f3abd762ce22
   languageName: node
   linkType: hard
 
-"@miden-sdk/react@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@miden-sdk/react@npm:0.14.0"
+"@miden-sdk/react@npm:^0.14.4":
+  version: 0.14.4
+  resolution: "@miden-sdk/react@npm:0.14.4"
   dependencies:
     zustand: "npm:^5.0.0"
   peerDependencies:
-    "@miden-sdk/miden-sdk": ^0.14.0
+    "@miden-sdk/miden-sdk": ^0.14.4
     react: ">=18.0.0"
-  checksum: 10c0/96d7cdd351cf5e577c3b183166f3f5b15aebeefdccd50e09d30a2463444747c9d9e514aadfeeea9fc809993e82e95fa05db7d74ffdc816c4a9f2e208c5821c2b
+  checksum: 10c0/503a4631361e0b8d1737665373b988fabb7eec77957673cc739fd20d5b58e89815fb1445c248a22237352da9f15d9393fd14448c5289199746420a8c8be00325
   languageName: node
   linkType: hard
 
@@ -1133,8 +1133,8 @@ __metadata:
   dependencies:
     "@getpara/react-sdk-lite": "npm:^2.11.0"
     "@getpara/web-sdk": "npm:^2.11.0"
-    "@miden-sdk/miden-sdk": "npm:^0.14.0"
-    "@miden-sdk/react": "npm:^0.14.0"
+    "@miden-sdk/miden-sdk": "npm:^0.14.4"
+    "@miden-sdk/react": "npm:^0.14.4"
     "@tanstack/react-query": "npm:^5.90.12"
     "@types/node": "npm:^25.3.5"
     "@types/react": "npm:^19.2.5"
@@ -1144,9 +1144,9 @@ __metadata:
   peerDependencies:
     "@getpara/react-sdk-lite": ^2.11.0
     "@getpara/web-sdk": ^2.11.0
-    "@miden-sdk/miden-para": ^0.14.0
-    "@miden-sdk/miden-sdk": ^0.14.0
-    "@miden-sdk/react": ^0.14.0
+    "@miden-sdk/miden-para": ^0.14.1
+    "@miden-sdk/miden-sdk": ^0.14.4
+    "@miden-sdk/react": ^0.14.4
     "@tanstack/react-query": ^5.0.0
     react: ^18.0.0 || ^19.0.0
     vite-plugin-node-polyfills: ^0.22.0
