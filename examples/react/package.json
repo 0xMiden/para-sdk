@@ -11,12 +11,12 @@
     "postinstall": "setup-para"
   },
   "dependencies": {
-    "@miden-sdk/miden-sdk": "^0.14.0",
+    "@miden-sdk/miden-sdk": "^0.14.4",
     "@getpara/evm-wallet-connectors": "^2.2.0",
     "@getpara/react-sdk-lite": "^2.2.0",
-    "@miden-sdk/miden-para": "^0.14.0",
-    "@miden-sdk/use-miden-para-react": "^0.14.0",
-    "@miden-sdk/react": "^0.14.0",
+    "@miden-sdk/miden-para": "^0.14.1",
+    "@miden-sdk/use-miden-para-react": "^0.14.1",
+    "@miden-sdk/react": "^0.14.4",
     "@tanstack/react-query": "^5.90.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
