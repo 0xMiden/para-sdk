@@ -1,0 +1,22 @@
+{
+  "name": "vanilla-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.24.0"
+  },
+  "packageManager": "yarn@1.22.22",
+  "dependencies": {
+    "@demox-labs/miden-sdk": "^0.12.5",
+    "@getpara/web-sdk": "^2.0.0-alpha.73",
+    "miden-para": "^0.10.9"
+  }
+}
