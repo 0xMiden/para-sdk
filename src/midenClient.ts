@@ -78,14 +78,14 @@ export const signBytes = (para: ParaWeb, wallet: Wallet) => {
     kind: 'word' | 'signingInputs'
   ): Promise<Uint8Array> => {
     const { SigningInputs, Word } = await import('@miden-sdk/miden-sdk');
-    const word: any =
+    const word =
       kind === 'word'
         ? Word.deserialize(data)
         : SigningInputs.deserialize(data).toCommitment();
     // keccak256 the Word's bytes — matches WASM secretKey.sign(word) internally.
-    const wordHex = word.toHex().startsWith('0x')
-      ? word.toHex().slice(2)
-      : word.toHex();
+    // Word.toHex() always returns "0x..." per the @miden-sdk contract (same
+    // shape the existing signCb above relies on with .slice(2)).
+    const wordHex = word.toHex().slice(2);
     const hashed = bytesToHex(keccak256(hexToBytes(wordHex)));
     const res = await para.signMessage({
       walletId: wallet.id,

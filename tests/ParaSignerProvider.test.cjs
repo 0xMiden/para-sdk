@@ -472,3 +472,58 @@ test('Only EVM wallets are used for connection', async () => {
     restore();
   }
 });
+
+test('SignerContext.signBytes is wired and forwards to the Para mock', async () => {
+  const state = {
+    isLoggedIn: true,
+    wallets: [{ id: 'wallet-1', type: 'EVM' }],
+  };
+  const mocks = createMocks(state);
+  const { ParaSignerProvider, restore } = loadParaSignerProvider(mocks);
+  const SignerContext = mocks['@miden-sdk/react'].SignerContext;
+
+  try {
+    let captured = null;
+    const Capture = () => {
+      captured = React.useContext(SignerContext);
+      return null;
+    };
+
+    let testRenderer;
+    await act(async () => {
+      testRenderer = renderer.create(
+        React.createElement(
+          ParaSignerProvider,
+          { apiKey: 'test', environment: 'DEVELOPMENT' },
+          React.createElement(Capture)
+        )
+      );
+      await flushPromises();
+      await flushPromises();
+    });
+
+    // Provider should have populated SignerContext with a connected signer
+    // exposing the new top-level signBytes field.
+    assert.ok(captured, 'SignerContext value should be populated');
+    assert.strictEqual(captured.isConnected, true, 'should be connected');
+    assert.strictEqual(
+      typeof captured.signBytes,
+      'function',
+      'signBytes should be a function'
+    );
+
+    // Calling signBytes should route to the Para mock and propagate args.
+    const data = new Uint8Array(32).fill(0x55);
+    await captured.signBytes(data, 'word');
+    assert.strictEqual(state.signBytesCalls, 1, 'mock signBytes should fire once');
+    assert.strictEqual(
+      state.lastSignBytesArgs.kind,
+      'word',
+      'kind should propagate'
+    );
+
+    testRenderer.unmount();
+  } finally {
+    restore();
+  }
+});
