@@ -35,6 +35,7 @@ const SignerContext =
   SignerContextUnsafe as unknown as Context<SignerContextValue | null>;
 import {
   signCb as createSignCb,
+  signBytes as createSignBytes,
   type CustomSignConfirmStep,
 } from '@miden-sdk/miden-para';
 import {
@@ -295,8 +296,14 @@ function ParaSignerProviderInner({
         if (!cancelled) {
           const { AccountStorageMode } = await import('@miden-sdk/miden-sdk');
 
+          // Pattern B: arbitrary-byte signing for `useSignBytes`. Para's MPC
+          // can sign any 32-byte hash, so we expose the same primitive used by
+          // signCb (just generalized for both `kind` values).
+          const signBytesCallback = createSignBytes(p, wallet);
+
           setSignerContext({
             signCb: signCallback,
+            signBytes: signBytesCallback,
             accountConfig: {
               publicKeyCommitment: commitmentBytes,
               accountType: 'RegularAccountImmutableCode',

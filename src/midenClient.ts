@@ -60,6 +60,42 @@ export const signCb = (
 };
 
 /**
+ * Pattern B: arbitrary-byte signing for `useSignBytes`.
+ *
+ * Generalizes the existing `signCb` flow to handle both `kind` values:
+ *   - 'word'         → bytes ARE a serialized 32-byte Miden Word.
+ *   - 'signingInputs' → extract the commitment Word via `inputs.toCommitment()`.
+ * In both cases the underlying primitive is `ECDSA-sign(keccak256(word_bytes))`,
+ * matching the wallet's `Vault.signData` semantics. Verified against
+ * `~/miden/miden-wallet/src/lib/miden/back/vault.ts:476-500`.
+ *
+ * Unlike `signCb`, this path does NOT prompt — `useSignBytes` is a developer-
+ * facing primitive. If your dApp needs UX confirmation, build it on top.
+ */
+export const signBytes = (para: ParaWeb, wallet: Wallet) => {
+  return async (
+    data: Uint8Array,
+    kind: 'word' | 'signingInputs'
+  ): Promise<Uint8Array> => {
+    const { SigningInputs, Word } = await import('@miden-sdk/miden-sdk');
+    const word: any =
+      kind === 'word'
+        ? Word.deserialize(data)
+        : SigningInputs.deserialize(data).toCommitment();
+    // keccak256 the Word's bytes — matches WASM secretKey.sign(word) internally.
+    const wordHex = word.toHex().startsWith('0x')
+      ? word.toHex().slice(2)
+      : word.toHex();
+    const hashed = bytesToHex(keccak256(hexToBytes(wordHex)));
+    const res = await para.signMessage({
+      walletId: wallet.id,
+      messageBase64: hexStringToBase64(hashed),
+    });
+    return fromHexSig((res as SuccessfulSignatureRes).signature);
+  };
+};
+
+/**
  * Ensures a Miden account exists for the given Para wallet public key.
  * Attempts to import an existing account for public/network modes before creating a new one.
  */

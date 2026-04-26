@@ -92,6 +92,15 @@ const createMocks = (state = {}) => {
           return new Uint8Array(67);
         };
       },
+      // Pattern B: arbitrary-byte signing for `useSignBytes`. Mock returns
+      // a deterministic signature so tests can assert call shape.
+      signBytes: (para, wallet) => {
+        return async (data, kind) => {
+          state.signBytesCalls = (state.signBytesCalls || 0) + 1;
+          state.lastSignBytesArgs = { data, kind };
+          return new Uint8Array(67);
+        };
+      },
       getUncompressedPublicKeyFromWallet: async (para, wallet) => {
         return new Uint8Array(65).fill(0x04);
       },
