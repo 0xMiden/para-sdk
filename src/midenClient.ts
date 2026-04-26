@@ -13,7 +13,7 @@ import {
   txSummaryToJosn,
 } from './utils.js';
 import type { MidenAccountOpts, Opts, TxSummaryJson } from './types.js';
-import type { MidenClient } from '@miden-sdk/miden-sdk';
+import type { MidenClient } from '@miden-sdk/miden-sdk/lazy';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
 import { accountSelectionModal, signingModal } from './modalClient.js';
 
@@ -33,7 +33,7 @@ export const signCb = (
   customSignConfirmStep?: CustomSignConfirmStep
 ) => {
   return async (_: Uint8Array, signingInputs: Uint8Array) => {
-    const { SigningInputs } = await import('@miden-sdk/miden-sdk');
+    const { SigningInputs } = await import('@miden-sdk/miden-sdk/lazy');
     const inputs = SigningInputs.deserialize(signingInputs);
     let commitment = inputs.toCommitment().toHex().slice(2);
     const hashed = bytesToHex(keccak256(hexToBytes(commitment)));
@@ -77,7 +77,7 @@ export const signBytes = (para: ParaWeb, wallet: Wallet) => {
     data: Uint8Array,
     kind: 'word' | 'signingInputs'
   ): Promise<Uint8Array> => {
-    const { SigningInputs, Word } = await import('@miden-sdk/miden-sdk');
+    const { SigningInputs, Word } = await import('@miden-sdk/miden-sdk/lazy');
     const word =
       kind === 'word'
         ? Word.deserialize(data)
@@ -105,7 +105,7 @@ async function createAccount(
   opts: MidenAccountOpts
 ) {
   const { AccountBuilder, AccountComponent, AccountStorageMode } =
-    await import('@miden-sdk/miden-sdk');
+    await import('@miden-sdk/miden-sdk/lazy');
 
   await client.sync();
   let pkc = await evmPkToCommitment(publicKey);
@@ -177,7 +177,7 @@ export async function createParaMidenClient(
   const wallet = evmWallets[selectedIndex] ?? evmWallets[0];
   const publicKey = accountKeys[selectedIndex] ?? accountKeys[0];
 
-  const { MidenClient } = await import('@miden-sdk/miden-sdk');
+  const { MidenClient } = await import('@miden-sdk/miden-sdk/lazy');
   if (opts.storageMode === 'private' && !opts.accountSeed) {
     throw new Error('accountSeed is required when using private storage mode');
   }

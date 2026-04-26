@@ -1,14 +1,14 @@
 'use client';
 
 import { useClient, useAccount, type Wallet } from '@getpara/react-sdk-lite';
-import type { MidenClient } from '@miden-sdk/miden-sdk';
+import type { MidenClient } from '@miden-sdk/miden-sdk/lazy';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createParaMidenClient,
   type Opts,
   type MidenAccountStorageMode,
   type CustomSignConfirmStep,
-} from '@miden-sdk/miden-para';
+} from '@miden-sdk/miden-para/lazy';
 
 /**
  * React hook that converts Para React SDK context into a ready-to-use MidenClient.
@@ -54,7 +54,7 @@ export function useParaMiden(
         return;
       }
 
-      const { AccountType } = await import('@miden-sdk/miden-sdk');
+      const { AccountType } = await import('@miden-sdk/miden-sdk/lazy');
 
       const { client: midenParaClient, accountId: aId } =
         await createParaMidenClient(

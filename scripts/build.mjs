@@ -57,3 +57,53 @@ for (const target of buildTargets) {
 
   await esbuild.build(buildOptions);
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Eager / lazy split
+// ─────────────────────────────────────────────────────────────────────
+// Source always imports `@miden-sdk/miden-sdk/lazy` (so the build output
+// from esbuild already IS the lazy variant — consumer bundlers will resolve
+// the subpath against the SDK's no-TLA entry).
+//
+// To produce the eager variant, we copy each output to a sibling directory
+// and string-replace `@miden-sdk/miden-sdk/lazy` → `@miden-sdk/miden-sdk`
+// in every emitted JS file. Mirrors the pattern in
+// `@miden-sdk/react/tsup.config.ts`.
+//
+// Final layout:
+//   dist/{esm,cjs}/...            ← lazy variant (source as-is)
+//   dist/eager/{esm,cjs}/...      ← eager variant (rewritten)
+async function copyDir(src, dst) {
+  await fs.mkdir(dst, { recursive: true });
+  for (const ent of await fs.readdir(src, { withFileTypes: true })) {
+    const s = path.join(src, ent.name);
+    const d = path.join(dst, ent.name);
+    if (ent.isDirectory()) await copyDir(s, d);
+    else await fs.copyFile(s, d);
+  }
+}
+
+async function rewriteLazyToEager(dir) {
+  for (const ent of await fs.readdir(dir, { withFileTypes: true })) {
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) {
+      await rewriteLazyToEager(p);
+    } else if (/\.(js|cjs|mjs)$/.test(ent.name)) {
+      const before = await fs.readFile(p, 'utf8');
+      const after = before.replace(
+        /@miden-sdk\/miden-sdk\/lazy/g,
+        '@miden-sdk/miden-sdk'
+      );
+      if (after !== before) await fs.writeFile(p, after);
+    }
+  }
+}
+
+const eagerDir = path.join(distDir, 'eager');
+await fs.rm(eagerDir, { recursive: true, force: true });
+for (const target of buildTargets) {
+  const lazyDir = path.join(distDir, target.dir);
+  const eagerVariantDir = path.join(eagerDir, target.dir);
+  await copyDir(lazyDir, eagerVariantDir);
+  await rewriteLazyToEager(eagerVariantDir);
+}

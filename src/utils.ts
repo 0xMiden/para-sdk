@@ -1,5 +1,5 @@
 import ParaWeb, { Wallet } from '@getpara/web-sdk';
-import type { NoteType, TransactionSummary } from '@miden-sdk/miden-sdk';
+import type { NoteType, TransactionSummary } from '@miden-sdk/miden-sdk/lazy';
 import { hexToBytes, utf8ToBytes } from '@noble/hashes/utils.js';
 import { TxSummaryJson } from './types';
 export { hexToBytes };
@@ -36,7 +36,7 @@ export const accountSeedFromStr = (str?: string) => {
  * Assumes input format `0x04${x}${y}` where x and y are 64-char hex strings.
  */
 export const evmPkToCommitment = async (uncompressedPublicKey: string) => {
-  const { Felt, Rpo256, FeltArray } = await import('@miden-sdk/miden-sdk');
+  const { Felt, Rpo256, FeltArray } = await import('@miden-sdk/miden-sdk/lazy');
   const withoutPrefix = uncompressedPublicKey.slice(4);
   const x = withoutPrefix.slice(0, 64);
   const y = withoutPrefix.slice(64); // hex encoded string

@@ -23,7 +23,7 @@ import {
   SignerContext as SignerContextUnsafe,
   type SignerContextValue,
   type SignerAccountConfig,
-} from '@miden-sdk/react';
+} from '@miden-sdk/react/lazy';
 
 // Re-cast SignerContext to the host app's React typings. @miden-sdk/react may
 // ship with a different @types/react version than the consumer (common with
@@ -37,11 +37,11 @@ import {
   signCb as createSignCb,
   signBytes as createSignBytes,
   type CustomSignConfirmStep,
-} from '@miden-sdk/miden-para';
+} from '@miden-sdk/miden-para/lazy';
 import {
   evmPkToCommitment,
   getUncompressedPublicKeyFromWallet,
-} from '@miden-sdk/miden-para';
+} from '@miden-sdk/miden-para/lazy';
 
 // Re-export Para hooks for convenience
 export { useModal, useLogout } from '@getpara/react-sdk-lite';
@@ -294,7 +294,7 @@ function ParaSignerProviderInner({
         );
 
         if (!cancelled) {
-          const { AccountStorageMode } = await import('@miden-sdk/miden-sdk');
+          const { AccountStorageMode } = await import('@miden-sdk/miden-sdk/lazy');
 
           // Pattern B: arbitrary-byte signing for `useSignBytes`. Para's MPC
           // can sign any 32-byte hash, so we expose the same primitive used by
