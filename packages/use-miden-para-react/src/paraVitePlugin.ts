@@ -9,10 +9,21 @@ export interface ParaVitePluginOptions {
   polyfills?: string[];
 }
 
-const STUB_PACKAGES = [
-  "@getpara/solana-wallet-connectors",
-  "@getpara/cosmos-wallet-connectors",
-];
+// Para's @getpara/react-core dynamically imports many optional integration
+// packages behind hooks the typical Miden dApp doesn't use (Account
+// Abstraction providers, Solana / Cosmos / Stellar / Ethers / Viem chain
+// signers, EVM wallet connectors). Without stubs, vite's import-analysis
+// fails at dev-server start and rollup fails at build, even though
+// runtime never reaches those code paths.
+//
+// Match by prefix regex so we don't have to enumerate sub-paths (Para's
+// react-core also dynamically imports per-chain signer files like
+// @getpara/react-core/dist/chains/evm/viem/useParaViemAccount.js).
+//
+// IMPORTANT: do NOT add @getpara/core-sdk, @getpara/shared, or
+// @getpara/react-common — those are real peers used by the EVM happy path.
+const STUB_REGEX =
+  /^@getpara\/(aa-|cosmjs-|cosmos-|ethers-|evm-wallet-|solana-|stellar-|viem-v2-)/;
 
 const STUB_PREFIX = "\0para-stub:";
 
@@ -54,17 +65,14 @@ export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
   }
 
   /**
-   * Esbuild plugin that stubs the connector packages during Vite's dep
-   * pre-bundling so esbuild doesn't leave unresolvable bare imports in
-   * the pre-bundled output.
+   * Esbuild plugin that stubs the optional Para packages during Vite's
+   * dep pre-bundling so esbuild doesn't leave unresolvable bare imports
+   * in the pre-bundled output.
    */
-  const stubConnectorsEsbuild = {
-    name: "stub-para-connectors",
+  const stubOptionalPackagesEsbuild = {
+    name: "stub-para-optional",
     setup(build: any) {
-      const filter = new RegExp(
-        `^(${STUB_PACKAGES.map((p) => p.replace(/[\\^$.*+?()[\]{}|/]/g, "\\$&")).join("|")})$`
-      );
-      build.onResolve({ filter }, (args: any) => ({
+      build.onResolve({ filter: STUB_REGEX }, (args: any) => ({
         path: args.path,
         namespace: "para-stub",
       }));
@@ -84,6 +92,15 @@ export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
         resolve: {
           dedupe: ["@getpara/web-sdk", "@getpara/react-sdk-lite"],
         },
+        build: {
+          rollupOptions: {
+            // Externalize optional packages for prod builds — runtime
+            // dynamic imports for them throw a friendly error if invoked,
+            // but dApps that don't use AA / cross-chain don't ship the
+            // bytes.
+            external: (id: string) => STUB_REGEX.test(id),
+          },
+        },
       };
     },
 
@@ -97,17 +114,17 @@ export function paraVitePlugin(options?: ParaVitePluginOptions): Plugin[] {
         config.optimizeDeps.esbuildOptions.plugins = [];
       }
       const hasPlugin = config.optimizeDeps.esbuildOptions.plugins.some(
-        (p: any) => p.name === "stub-para-connectors"
+        (p: any) => p.name === "stub-para-optional"
       );
       if (!hasPlugin) {
-        config.optimizeDeps.esbuildOptions.plugins.push(stubConnectorsEsbuild);
+        config.optimizeDeps.esbuildOptions.plugins.push(stubOptionalPackagesEsbuild);
       }
     },
 
-    // Stub the connector packages at Vite's module resolution level
+    // Stub the optional packages at Vite's module resolution level
     // (handles imports that bypass pre-bundling, e.g. in SSR or dev).
     resolveId(source) {
-      if (STUB_PACKAGES.includes(source)) {
+      if (STUB_REGEX.test(source)) {
         return STUB_PREFIX + source;
       }
     },
